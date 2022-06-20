@@ -244,7 +244,7 @@ variable "services" {
         },
       ]
       command = [
-        "start --auto-build --http-relative-path /auth --hostname-strict false --proxy edge --import-realm"
+        "start --auto-build --http-relative-path /auth --hostname-strict false --proxy edge --spi-login-protocol-openid-connect-legacy-logout-redirect-uri=true --import-realm"
       ]
       dependsOn = null
       healthCheck = {
