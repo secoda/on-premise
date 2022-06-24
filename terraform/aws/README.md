@@ -89,10 +89,6 @@ https://secoda.yourcompany.com/auth/admin/master/console/#/realms/secoda
 - OneLogin
 - SAML2.0
 
-## Slack Bot
-
-Please ask us to add your organization’s callback URL to the Secoda Slack app.
-
 ## Troubleshooting (Common Errors)
 
 `MalformedPolicyDocumentException: Policy contains a statement with one or more invalid service principals`: please try using a different AWS administrator account, or create a new one with a different name.
@@ -100,10 +96,6 @@ Please ask us to add your organization’s callback URL to the Secoda Slack app.
 `Subnets can currently only be created in the following availability zones: us-west-1b, us-west-1c`: This is due to using inconsistent regions in the `tfvars` file and the `AWS_REGION` environment variable. Make sure these are consistent.
 
 `Error: error creating ELBv2 Listener (arn:aws:elasticloadbalancing:***): ValidationError: Certificate ARN 'arn:aws:acm:us-west-1:482836992928:certificate/***' is not valid`: This is due to the certificate being in a different region than the deployment.
-
-Neo4j container is complaining of **file-locking** errors. This is a nuance to using the Fargate deploy type because it uses EFS for shared storage. This error will occur if you update the terraform files and apply changes while there are running containers. Because the new and old containers will try to reference the same data at the same time, the new container will fail. To resolve this, stop **both** running tasks, and wait for a new task to automatically spin up.
-
-`OAuth2Token.get(user_id=session[\""user\""][\""__id\""])` related errors typically mean you are signed in with the administrator account. Go to `https://<your_company>.secoda.co/signout` and then sign back in. This may also be caused by using ‘+’ in email account. Avoid using ‘+’.
 
 # Misc.
 
@@ -115,7 +107,7 @@ In this directory, run `terraform login`. In `versions.tf` please uncomment the 
 
 ```yaml
 backend "remote" {
-organization = "secoda"
+  organization = "secoda"
 }
 ```
 
