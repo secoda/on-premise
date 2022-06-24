@@ -22,6 +22,11 @@ variable "es_password" {
   type = string
 }
 
+variable "keycloak_secret_key" {
+  type = string
+  default = null
+}
+
 variable "keycloak_admin_password" {
   type        = string
   description = "The password for the keycloak `admin`."

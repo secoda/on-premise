@@ -100,7 +100,15 @@ variable "aws_region" {
 # Authentication
 ################################################################################
 
-# N/A
+variable "keycloak_secret_key" {
+  type    = string
+  default = null
+}
+
+variable "keycloak_admin_password" {
+  type    = string
+  default = null
+}
 
 ################################################################################
 # Load Balancers
