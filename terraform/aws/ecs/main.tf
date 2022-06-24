@@ -546,8 +546,8 @@ resource "aws_ecs_task_definition" "main" {
               "value" : var.keycloak_admin_password,
             },
             {
-              "name" : "KEYCLOAK_SECRET", # Populates the realm.
-              "value" : random_uuid.keycloak_secret.result,
+              "name" : "KEYCLOAK_SECRET",
+              "value" : var.keycloak_secret_key == null ? random_uuid.keycloak_secret.result : var.keycloak_secret_key,
             },
             {
               "name" : "KC_DB_PASSWORD", # >= v18
