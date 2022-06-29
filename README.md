@@ -17,3 +17,7 @@ Deploying Secoda on-premise is offered to our Enterprise customers.
 - [Terraform]
   - [AWS]
     - [ECS + Fargate](https://github.com/secoda/onpremise/tree/main/terraform/aws)
+
+## Contributing
+
+We recommend following this [guide](https://www.dataschool.io/how-to-contribute-on-github/) for contributing to the codebase.
