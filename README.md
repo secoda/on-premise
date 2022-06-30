@@ -17,6 +17,9 @@ Deploying Secoda on-premise is offered to our Enterprise customers.
 - [Terraform]
   - [AWS]
     - [ECS + Fargate](https://github.com/secoda/onpremise/tree/main/terraform/aws)
+- [Kubernetes]
+  - [GCP]
+    - [GKE](https://github.com/secoda/onpremise/tree/main/kubernetes/gke)
 
 ## Contributing
 

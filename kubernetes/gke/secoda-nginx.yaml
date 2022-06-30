@@ -1,0 +1,118 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-conf
+data:
+  nginx.conf: |
+    events {
+      worker_connections 4096;
+    }
+
+    http {
+
+      map $http_upgrade $connection_upgrade {
+        default upgrade;
+        '' close;
+      }
+
+      server {
+        listen 80 default_server;
+        listen [::]:80 default_server;
+        server_name localhost;
+
+        rewrite ^/redirect/home?$ / permanent;
+
+        location ~ ^/(auth/admin|auth/realms|auth/resources|auth/js)/ {
+          proxy_pass http://auth:8080;
+          proxy_http_version 1.1;
+          proxy_set_header Upgrade $http_upgrade;
+          proxy_set_header Connection 'upgrade';
+          proxy_set_header Host $host;
+          proxy_cache_bypass $http_upgrade;
+          proxy_buffer_size 128k;
+          proxy_buffers 4 256k;
+          proxy_busy_buffers_size 256k;
+          proxy_redirect http:// $scheme://;
+        }
+
+        location /api/v1/ {
+          rewrite /api/v1(.*) $1 break;
+          proxy_pass http://api:5007;
+          proxy_http_version 1.1;
+          proxy_set_header Upgrade $http_upgrade;
+          proxy_set_header Connection $connection_upgrade;
+          proxy_set_header Host $host;
+          proxy_set_header X-Real-IP $remote_addr;
+          proxy_set_header X-Forward-For $proxy_add_x_forwarded_for;
+          proxy_set_header X-Forwarded-Proto $scheme;
+          proxy_buffer_size 128k;
+          proxy_buffers 8 256k;
+          proxy_busy_buffers_size 256k;
+          proxy_redirect http:// $scheme://;
+        }
+
+        location / {
+          proxy_pass http://frontend:5006;
+          proxy_http_version 1.1;
+          proxy_set_header Upgrade $http_upgrade;
+          proxy_set_header Connection 'upgrade';
+          proxy_set_header Host $host;
+          proxy_cache_bypass $http_upgrade;
+          proxy_buffer_size 128k;
+          proxy_buffers 4 256k;
+          proxy_busy_buffers_size 256k;
+          proxy_redirect http:// $scheme://;
+        }
+      }
+    }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx
+  labels:
+    io.kompose.service: nginx
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+        io.kompose.service: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - mountPath: /etc/nginx # mount nginx-conf volumn to /etc/nginx
+          readOnly: true
+          name: nginx-conf
+        - mountPath: /var/log/nginx
+          name: log
+      volumes:
+      - name: nginx-conf
+        configMap:
+          name: nginx-conf # place ConfigMap `nginx-conf` on /etc/nginx
+          items:
+            - key: nginx.conf
+              path: nginx.conf
+      - name: log
+        emptyDir: {}
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 80
+    targetPort: 80
+  selector:
+    app: nginx
