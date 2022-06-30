@@ -1,0 +1,70 @@
+apiVersion: apps/v1 
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  name: worker
+  labels:
+    io.kompose.service: worker
+spec:
+  replicas: 1
+  strategy: {}
+  selector:
+    matchLabels:
+      io.kompose.service: worker
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        io.kompose.service: worker
+    spec:
+      containers:
+      - command: ["/bin/sh"]
+        args:
+        - -c
+        - "doppler run --preserve-env -- python3 app.py runserver 0.0.0.0:5008 & doppler run --preserve-env -- python3 app.py qcluster"
+        env:
+        - name: APISERVICE_DATABASE_CONNECTION
+          valueFrom:
+            secretKeyRef:
+              name: secodasecrets
+              key: api_postgres_connection_string
+        - name: REDIS_URL
+          value: redis://redis:6379
+        - name: DOPPLER_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: secodasecrets
+              key: doppler_token
+        image: secoda/on-premise-api:3
+        name: api
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 5008
+        resources:
+          limits:
+            memory: 2048M
+          requests:
+            cpu: 200m
+            memory: 1024M
+      restartPolicy: Always
+      imagePullSecrets:
+        - name: secoda-dockerhub
+status: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: null
+  name: worker
+  labels:
+    io.kompose.service: worker
+spec:
+  type: LoadBalancer
+  ports:
+  - name: "5008"
+    port: 5008
+    targetPort: 5008
+  selector:
+    io.kompose.service: worker
+status:
+  loadBalancer: {}
