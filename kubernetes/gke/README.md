@@ -67,9 +67,9 @@ When using the `base64` command line tool to encode data, `-n` must be used, or 
 
 You may need to run `brew upgrade openssl` to generate these.
 
-**private_key** - `openssl genrsa -out secoda.private.pem 2048 && echo "Copy the following:" && cat secoda.private.pem | base64 | base64`
+**private_key** - `openssl genrsa -out secoda.private.pem 2048 && echo "Copy the following:" && cat secoda.private.pem | base64 | tr -d \\n | base64`
 
-**public_key** - `openssl rsa -in secoda.private.pem -pubout > secoda.public.pem && echo "Copy the following:" && cat secoda.public.pem | base64 | base64`
+**public_key** - `openssl rsa -in secoda.private.pem -pubout > secoda.public.pem && echo "Copy the following:" && cat secoda.public.pem | base64 | tr -d \\n | base64`
 
 5. (Optional) in `secoda-frontend.yaml`, `secoda-worker.yaml`, `secoda-api.yaml`, and `secoda-redis.yaml` modify the resources accessible by each pod to increase/decrease the amount of CPU and RAM they can utilize
 
