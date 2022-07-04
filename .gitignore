@@ -23,3 +23,7 @@ onprem.tfvars
 secoda.onprem.tfvars
 
 .terraform
+
+custom.secoda-secrets.yaml
+
+.DS_Store

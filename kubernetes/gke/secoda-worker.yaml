@@ -1,4 +1,4 @@
-apiVersion: apps/v1 
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   creationTimestamp: null
@@ -18,34 +18,34 @@ spec:
         io.kompose.service: worker
     spec:
       containers:
-      - command: ["/bin/sh"]
-        args:
-        - -c
-        - "doppler run --preserve-env -- python3 app.py runserver 0.0.0.0:5008 & doppler run --preserve-env -- python3 app.py qcluster"
-        env:
-        - name: APISERVICE_DATABASE_CONNECTION
-          valueFrom:
-            secretKeyRef:
-              name: secodasecrets
-              key: api_postgres_connection_string
-        - name: REDIS_URL
-          value: redis://redis:6379
-        - name: DOPPLER_TOKEN
-          valueFrom:
-            secretKeyRef:
-              name: secodasecrets
-              key: doppler_token
-        image: secoda/on-premise-api:3
-        name: api
-        imagePullPolicy: Always
-        ports:
-        - containerPort: 5008
-        resources:
-          limits:
-            memory: 2048M
-          requests:
-            cpu: 200m
-            memory: 1024M
+        - env:
+            - name: APISERVICE_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: secodasecrets
+                  key: api_secret
+            - name: APISERVICE_DATABASE_CONNECTION
+              valueFrom:
+                secretKeyRef:
+                  name: secodasecrets
+                  key: api_postgres_connection_string
+            - name: REDIS_URL
+              value: redis://redis:6379
+          name: api
+          image: secoda/on-premise-api:3
+          command: ["/bin/sh"]
+          args:
+            - -c
+            - ./worker.sh
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 5008
+          resources:
+            limits:
+              memory: 2048M
+            requests:
+              cpu: 200m
+              memory: 1024M
       restartPolicy: Always
       imagePullSecrets:
         - name: secoda-dockerhub
@@ -61,9 +61,9 @@ metadata:
 spec:
   type: LoadBalancer
   ports:
-  - name: "5008"
-    port: 5008
-    targetPort: 5008
+    - name: "5008"
+      port: 5008
+      targetPort: 5008
   selector:
     io.kompose.service: worker
 status:

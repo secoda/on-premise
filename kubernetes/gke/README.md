@@ -9,62 +9,115 @@ This deployment option uses **Google Kubernetes Engine**.
 2. Authenticate to Secoda's image registry
 
 ```bash
-kubectl create secret docker-registry secoda-dockerhub --docker-server=registry.hub.docker.com --docker-username=secodaonprem --docker-password=****** --docker-email=andrew@secoda.co
+kubectl create secret docker-registry secoda-dockerhub --docker-server=https://index.docker.io/v1/ --docker-username=secodaonpremise --docker-password=<CUSTOMER_SPECIFIC_PASSWORD> --docker-email=carter@secoda.co
 ```
 
-3. Create a Postgres database. We recommend using [Google Cloud SQL](https://cloud.google.com/sql) to achieve this. You could also use any other managed Postgres provider or host it yourself. 
+```bash
+REGION=northamerica-northeast1
+gcloud compute zones list --filter=region:$REGION
+
+gcloud container clusters create secoda \
+    --release-channel regular \
+    --zone $REGION \
+    --node-locations $REGION-b,$REGION-c
+```
+
+Customer support will provide you with an organization-specific `--docker-password`.
+
+3. Create a Postgres database. We recommend using [Google Cloud SQL](https://cloud.google.com/sql) to achieve this. You could also use any other managed Postgres provider, or host it yourself. 
+
 
 Once your database cluster is created, connect to it and then create two seperate databases on it.
 
 ```bash
-psql -h your-postgres-ip -U postgres
+psql -h <HOST> -U postgres
 ```
 
 ```bash
-create database api;
-create database auth;
+create database keycloak;
+create database secoda;
 ```
 
 You will have to authorize inbound traffic to the database from your GKE cluster and perhaps your own local computer.
 
 4. Update `secoda-secrets.yaml` with your database details. Please ensure all of your credentials are encoded as base64
 
-**api_postgres_connection_string** - it has to be in the format of `postgresql://username:password@host:5432/api` before being encoded as base64
+### NOTE: 
+When using the `base64` command line tool to encode data, `-n` must be used, or encoding will be done including new line character, `echo -n 'input' | openssl base64`.
 
-**auth_db_addr** - base64 encoding of your postgres host
+**api_postgres_connection_string** - it has to be in the format of `postgresql://<USERNAME>:<PASSWORD>@<HOST>:5432/secoda` before being encoded as base64
 
-**auth_db_database** - base64 encoding of your database name for auth service. It will be called `auth` if you used the commands from step 3
+**auth_db_addr** - base64 encoding of your postgres host, in this format `jdbc:postgresql://<HOST>/keycloak`
+
+**auth_db_database** - base64 encoding of your database name for auth service. It should be called `keycloak`.
 
 **auth_db_user** - base64 encoding of your postgres db user. If you used cloud sql, this will be `postgres`
 
 **auth_db_schema** - base64 encoding of `public`
 
-**auth_db_password** - base64 encoding of your database password
+**auth_db_password** - base64 encoding of your database password, this should be the same as the password in the `api_postgres_connection_string`
 
-**doppler_token** - base64 encoding of the doppler token provided to you by Secoda team
-
-**keycloak_admin_password** - base64 encoding of the password to login to the admin panel of Keycloak
+**keycloak_admin_password** - we suggest using, already in b64 `openssl rand -hex 20 | cut -c 1-16 | base64`
 
 **keycloak_user** - base64 encoding of the username for your keycloak admin user
 
-Once you have filled in all the values, please run the following:
+**keycloak_secret** - the result of this command, already in b64 `openssl rand -hex 20 | cut -c 1-32 | base64`
 
-```bash
-kubectl apply -f secoda-secrets.yaml
-```
+**api_secret** - the result of this command, already in b64 `uuidgen | tr '[:upper:]' '[:lower:]' | base64`
+
+You may need to run `brew upgrade openssl` to generate these.
+
+**private_key** - `openssl genrsa -out secoda.private.pem 2048 && echo "Copy the following:" && cat secoda.private.pem | base64`
+
+**public_key** - `openssl rsa -in secoda.private.pem -pubout > secoda.public.pem && echo "Copy the following:" && cat secoda.public.pem | base64`
 
 5. (Optional) in `secoda-frontend.yaml`, `secoda-worker.yaml`, `secoda-api.yaml`, and `secoda-redis.yaml` modify the resources accessible by each pod to increase/decrease the amount of CPU and RAM they can utilize
+
+
+## TLS Configuration (Required)
+ 
+Here, we use a self-signed certificate, but we suggest using a valid Google-managed certificate.
+
+Create the self-signed certifcate:
+
+```bash
+openssl genrsa -out ingress.key 2048
+
+openssl req -new -key ingress.key -out ingress.csr \
+    -subj "/CN=secoda.<COMPANY>.com"
+
+openssl x509 -req -days 365 -in ingress.csr -signkey ingress.key \
+    -out ingress.crt
+```
+
+Create the k8s secret.
+
+```bash
+kubectl create secret tls lb \
+    --cert ingress.crt --key ingress.key
+```
+
+Replace the host in `secoda-lb.yaml` with `secoda.<COMPANY>.com`.
+
+Create the load balancer.
+
+```
+kubectl apply -f secoda-lb.yaml
+kubectl describe ingress lb
+```
 
 ## Deployment
 
 1. Run the following commands to deploy Secoda
 
 ```bash
+kubectl apply -f secoda-secrets.yaml
 kubectl apply -f secoda-redis.yaml
 kubectl apply -f secoda-frontend.yaml
 kubectl apply -f secoda-api.yaml
 kubectl apply -f secoda-worker.yaml
 kubectl apply -f secoda-nginx.yaml
+kubectl apply -f secoda-auth.yaml
 ```
 
 2. Once it is all done, go the port 80 of the `nginx` pod to access Secoda

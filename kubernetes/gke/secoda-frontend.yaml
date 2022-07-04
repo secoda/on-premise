@@ -1,4 +1,4 @@
-apiVersion: apps/v1 
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   creationTimestamp: null
@@ -18,27 +18,35 @@ spec:
         io.kompose.service: frontend
     spec:
       containers:
-      - command: ["/bin/sh"]
-        args:
-        - -c
-        - "doppler run -- gunicorn -w 8 --bind :5006 frontend_service.wsgi"
-        env:
-        - name: DOPPLER_TOKEN
-          valueFrom:
-            secretKeyRef:
-              name: secodasecrets
-              key: doppler_token
-        image: secoda/on-premise-frontend:3
-        name: frontend
-        imagePullPolicy: Always
-        ports:
-        - containerPort: 5006
-        resources:
-          limits:
-            memory: 2048M
-          requests:
-            cpu: 200m
-            memory: 1024M
+        - env:
+            - name: APISERVICE_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: secodasecrets
+                  key: api_secret
+            - name: KEYCLOAK_CONFIG_URL
+              value: http://auth:8080/auth/realms/secoda/.well-known/openid-configuration
+            - name: PUBLIC_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: secodasecrets
+                  key: public_key
+            - name: PRIVATE_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: secodasecrets
+                  key: private_key
+          image: secoda/on-premise-frontend:4
+          name: frontend
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 5006
+          resources:
+            limits:
+              memory: 2048M
+            requests:
+              cpu: 200m
+              memory: 1024M
       restartPolicy: Always
       imagePullSecrets:
         - name: secoda-dockerhub
@@ -54,9 +62,9 @@ metadata:
 spec:
   type: LoadBalancer
   ports:
-  - name: "5006"
-    port: 5006
-    targetPort: 5006
+    - name: "5006"
+      port: 5006
+      targetPort: 5006
   selector:
     io.kompose.service: frontend
 status:

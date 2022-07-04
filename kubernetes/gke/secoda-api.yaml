@@ -1,4 +1,4 @@
-apiVersion: apps/v1 
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   creationTimestamp: null
@@ -18,34 +18,34 @@ spec:
         io.kompose.service: api
     spec:
       containers:
-      - command: ["/bin/sh"]
-        args:
-        - -c
-        - ./server.sh
-        env:
-        - name: APISERVICE_DATABASE_CONNECTION
-          valueFrom:
-            secretKeyRef:
-              name: secodasecrets
-              key: api_postgres_connection_string
-        - name: DOPPLER_TOKEN
-          valueFrom:
-            secretKeyRef:
-              name: secodasecrets
-              key: doppler_token
-        - name: REDIS_URL
-          value: redis://redis:6379
-        image: secoda/on-premise-api:3
-        imagePullPolicy: Always
-        name: api
-        ports:
-        - containerPort: 5007
-        resources:
-          limits:
-            memory: 2048M
-          requests:
-            cpu: 200m
-            memory: 1024M
+        - command: ["/bin/sh"]
+          args:
+            - -c
+            - ./server.sh
+          env:
+            - name: APISERVICE_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: secodasecrets
+                  key: api_secret
+            - name: APISERVICE_DATABASE_CONNECTION
+              valueFrom:
+                secretKeyRef:
+                  name: secodasecrets
+                  key: api_postgres_connection_string
+            - name: REDIS_URL
+              value: redis://redis:6379
+          image: secoda/on-premise-api:3
+          imagePullPolicy: Always
+          name: api
+          ports:
+            - containerPort: 5007
+          resources:
+            limits:
+              memory: 2048M
+            requests:
+              cpu: 200m
+              memory: 1024M
       restartPolicy: Always
       imagePullSecrets:
         - name: secoda-dockerhub
@@ -61,9 +61,9 @@ metadata:
 spec:
   type: LoadBalancer
   ports:
-  - name: "5007"
-    port: 5007
-    targetPort: 5007
+    - name: "5007"
+      port: 5007
+      targetPort: 5007
   selector:
     io.kompose.service: api
 status:

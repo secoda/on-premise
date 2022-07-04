@@ -1,4 +1,4 @@
-apiVersion: apps/v1 
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   creationTimestamp: null
@@ -18,68 +18,47 @@ spec:
         io.kompose.service: auth
     spec:
       containers:
-      - env:
-        - name: KEYCLOAK_IMPORT
-          value: /opt/jboss/keycloak/imports/realm-export.json
-        - name: PROXY_ADDRESS_FORWARDING
-          value: "true"
-        - name: DB_VENDOR
-          value: postgres
-        - name: DB_ADDR
-          valueFrom:
-            secretKeyRef:
-              name: secodasecrets
-              key: auth_db_addr
-        - name: DB_DATABASE
-          valueFrom:
-            secretKeyRef:
-              name: secodasecrets
-              key: auth_db_database
-        - name: DB_USER
-          valueFrom:
-            secretKeyRef:
-              name: secodasecrets
-              key: auth_db_user
-        - name: DB_SCHEMA
-          valueFrom:
-            secretKeyRef:
-              name: secodasecrets
-              key: auth_db_schema
-        - name: DB_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: secodasecrets
-              key: auth_db_password
-        - name: KEYCLOAK_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: secodasecrets
-              key: keycloak_admin_password
-        - name: KEYCLOAK_ADMIN_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: secodasecrets
-              key: keycloak_admin_password
-        - name: KEYCLOAK_USER
-          valueFrom:
-            secretKeyRef:
-              name: secodasecrets
-              key: keycloak_user
-        - name: DOPPLER_TOKEN
-          valueFrom:
-            secretKeyRef:
-              name: secodasecrets
-              key: doppler_token
-        image: secoda/on-premise-auth:3
-        name: api
-        ports:
-        - containerPort: 8080
-        resources:
-          limits:
-            memory: 2048M
-          requests:
-            cpu: 200m
-            memory: 1024M
+        - env:
+            - name: KC_DB_USERNAME
+              value: postgres
+            - name: KC_DB
+              value: postgres
+            - name: KC_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: secodasecrets
+                  key: auth_db_password
+            - name: KC_DB_URL
+              valueFrom:
+                secretKeyRef:
+                  name: secodasecrets
+                  key: auth_db_url
+            - name: KEYCLOAK_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: secodasecrets
+                  key: keycloak_secret
+            - name: KEYCLOAK_ADMIN
+              value: admin
+            - name: KEYCLOAK_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: secodasecrets
+                  key: keycloak_admin_password
+          image: secoda/on-premise-auth:4
+          args:
+            [
+              "start --auto-build --http-relative-path /auth --hostname-strict false --proxy edge --spi-login-protocol-openid-connect-legacy-logout-redirect-uri=true --import-realm",
+            ]
+          name: api
+          ports:
+            - containerPort: 8080
+          resources:
+            limits:
+              memory: 2048M
+            requests:
+              cpu: 200m
+              memory: 1024M
       restartPolicy: Always
       imagePullSecrets:
         - name: secoda-dockerhub
@@ -95,9 +74,9 @@ metadata:
 spec:
   type: LoadBalancer
   ports:
-  - name: "8080"
-    port: 8080
-    targetPort: 8080
+    - name: "8080"
+      port: 8080
+      targetPort: 8080
   selector:
     io.kompose.service: auth
 status:
