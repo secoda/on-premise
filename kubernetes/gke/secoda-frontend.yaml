@@ -19,6 +19,11 @@ spec:
     spec:
       containers:
         - env:
+            - name: KEYCLOAK_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: secodasecrets
+                  key: keycloak_secret
             - name: APISERVICE_SECRET
               valueFrom:
                 secretKeyRef:
