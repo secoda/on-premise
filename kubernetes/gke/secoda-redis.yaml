@@ -43,12 +43,9 @@ metadata:
   labels:
     io.kompose.service: redis
 spec:
-  type: LoadBalancer
   ports:
   - name: "6379"
     port: 6379
     targetPort: 6379
   selector:
     io.kompose.service: redis
-status:
-  loadBalancer: {}

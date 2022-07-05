@@ -67,12 +67,9 @@ metadata:
   labels:
     io.kompose.service: frontend
 spec:
-  type: LoadBalancer
   ports:
     - name: "5006"
       port: 5006
       targetPort: 5006
   selector:
     io.kompose.service: frontend
-status:
-  loadBalancer: {}

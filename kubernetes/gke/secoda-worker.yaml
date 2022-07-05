@@ -59,12 +59,9 @@ metadata:
   labels:
     io.kompose.service: worker
 spec:
-  type: LoadBalancer
   ports:
     - name: "5008"
       port: 5008
       targetPort: 5008
   selector:
     io.kompose.service: worker
-status:
-  loadBalancer: {}
