@@ -47,19 +47,11 @@ When using the `base64` command line tool to encode data, `-n` must be used, or 
 
 **api_postgres_connection_string** - it has to be in the format of `postgresql://<USERNAME>:<PASSWORD>@<HOST>:5432/secoda` before being encoded as base64
 
-**auth_db_addr** - base64 encoding of your postgres host, in this format `jdbc:postgresql://<HOST>/keycloak`
-
-**auth_db_database** - base64 encoding of your database name for auth service. It should be called `keycloak`.
-
-**auth_db_user** - base64 encoding of your postgres db user. If you used cloud sql, this will be `postgres`
-
-**auth_db_schema** - base64 encoding of `public`
+**auth_db_url** - base64 encoding of your postgres host, in this format `jdbc:postgresql://<HOST>/keycloak`
 
 **auth_db_password** - base64 encoding of your database password, this should be the same as the password in the `api_postgres_connection_string`
 
 **keycloak_admin_password** - we suggest using, already in b64 `openssl rand -hex 20 | cut -c 1-16 | base64`
-
-**keycloak_user** - base64 encoding of the username for your keycloak admin user
 
 **keycloak_secret** - the result of this command, already in b64 `openssl rand -hex 20 | cut -c 1-32 | base64`
 
