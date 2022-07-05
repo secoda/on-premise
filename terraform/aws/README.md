@@ -115,7 +115,6 @@ backend "remote" {
 
 - VPC, Public, Database, Private Subnets
 - RDS - Postgres Instance
-- OpenSearch - ElasticSearch Instance
 - Redis - Elasticache Instance
 - ECS Fargate Cluster, Service, and Task Definition
 - Load Balancer

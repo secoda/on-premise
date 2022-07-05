@@ -25,7 +25,6 @@ module "ecs" {
 
   depends_on = [
     aws_db_instance.postgres, # Must wait for database to spin up to run migrations.
-    aws_elasticsearch_domain.secoda
   ]
 
   name = var.name
@@ -37,9 +36,6 @@ module "ecs" {
   db_addr          = aws_db_instance.postgres.address # Used for keycloak and analytics.
   redis_addr       = module.redis.endpoint            # Used for the job queue.
   redis_auth_token = random_password.redis.result
-
-  es_host     = aws_elasticsearch_domain.secoda.endpoint
-  es_password = random_password.es.result
 
   private_bucket = module.manifest_bucket.name
 
@@ -66,8 +62,8 @@ module "ecs" {
   ecs_sg_id = aws_security_group.ecs_sg.id
 }
 
-# Need to pull this out so that we can reference it in the RDS, elasticsearch, etc.
-# Because ecs depends_on RDS, elasticsearch, this must be created first.
+# Need to pull this out so that we can reference it in the RDS, etc.
+# Because ecs depends_on RDS, this must be created first.
 resource "aws_security_group" "ecs_sg" {
   name        = "ecs-${var.name}"
   description = "${var.name} container security group."

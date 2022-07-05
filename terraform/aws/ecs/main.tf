@@ -533,10 +533,6 @@ resource "aws_ecs_task_definition" "main" {
               "name" : "APISERVICE_DATABASE_CONNECTION",
               "value" : "postgresql://keycloak:${var.keycloak_database_password}@${var.db_addr}:5432/secoda",
             },
-            {
-              "name" : "ES_CONNECTION_STRING",
-              "value" : "https://elastic:${var.es_password}@${var.es_host}:443",
-            },
             # Keycloak
             {
               "name" : "KEYCLOAK_ADMIN_PASSWORD", # >= v18

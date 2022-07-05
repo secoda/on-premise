@@ -14,14 +14,6 @@ variable "db_addr" {
   type = string
 }
 
-variable "es_host" {
-  type = string
-}
-
-variable "es_password" {
-  type = string
-}
-
 variable "keycloak_secret_key" {
   type = string
   default = null
