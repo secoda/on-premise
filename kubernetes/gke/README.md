@@ -103,8 +103,9 @@ Create the load balancer.
 
 ```
 kubectl apply -f secoda-lb.yaml
-kubectl describe ingress lb
 ```
+
+Point an A record at the IP from the above describe command.
 
 ## Deployment
 
@@ -120,4 +121,4 @@ kubectl apply -f secoda-nginx.yaml
 kubectl apply -f secoda-auth.yaml
 ```
 
-2. Once it is all done, go the port 80 of the `nginx` pod to access Secoda
+2. Once it is all done, access your DNS name.

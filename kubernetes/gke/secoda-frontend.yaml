@@ -19,6 +19,8 @@ spec:
     spec:
       containers:
         - env:
+            - name: APISERVICE_INTERNAL_BASE
+              value: http://api:5007
             - name: KEYCLOAK_SECRET
               valueFrom:
                 secretKeyRef:
