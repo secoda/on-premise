@@ -66,7 +66,7 @@ You may need to run `brew upgrade openssl` to generate these.
 5. (Optional) in `secoda-frontend.yaml`, `secoda-worker.yaml`, `secoda-api.yaml`, and `secoda-redis.yaml` modify the resources accessible by each pod to increase/decrease the amount of CPU and RAM they can utilize
 
 
-## TLS Configuration (Required)
+## TLS/HTTPS Configuration (Required)
  
 Here, we use a self-signed certificate, but we suggest using a valid Google-managed certificate.
 
@@ -104,6 +104,7 @@ Point an A record at the IP from the above describe command.
 1. Run the following commands to deploy Secoda
 
 ```bash
+kubectl apply -f secoda-lb.yaml
 kubectl apply -f secoda-secrets.yaml
 kubectl apply -f secoda-redis.yaml
 kubectl apply -f secoda-frontend.yaml
