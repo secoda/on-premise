@@ -75,16 +75,24 @@ spec:
         - start --auto-build --http-relative-path /auth --hostname-strict false --proxy
           edge --spi-login-protocol-openid-connect-legacy-logout-redirect-uri=true --import-realm
         env:
-        - name: KC_DB_USERNAME
+        - name: DB_VENDOR
           value: postgres
-        - name: KC_DB
-          value: postgres
-        - name: KC_DB_PASSWORD
+        - name: DB_USER
+          valueFrom:
+            secretKeyRef:
+              key: auth_db_username
+              name: {{ include "secoda.fullname" . }}-secodasecrets
+        - name: DB_DATABASE
+          valueFrom:
+            secretKeyRef:
+              key: auth_db_name
+              name: {{ include "secoda.fullname" . }}-secodasecrets
+        - name: DB_PASSWORD
           valueFrom:
             secretKeyRef:
               key: auth_db_password
               name: {{ include "secoda.fullname" . }}-secodasecrets
-        - name: KC_DB_URL
+        - name: DB_ADDR
           valueFrom:
             secretKeyRef:
               key: auth_db_url
