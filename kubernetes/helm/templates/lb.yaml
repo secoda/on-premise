@@ -1,12 +1,10 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: {{ include "secoda.fullname" . }}-lb
-  labels:
-  {{- include "secoda.labels" . | nindent 4 }}
+  name: '{{ include "secoda.fullname" . }}-lb'
 spec:
   rules:
-  - host: {{ .Values.lb.host }}
+  - host: "on-premise.secoda.co"
     http:
       paths:
       - backend:
