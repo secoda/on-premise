@@ -56,6 +56,8 @@ secodasecrets:
   apiSecret: ""
   authDbPassword: ""
   authDbUrl: ""
+  authDbName: ""
+  authDBUsername: ""
   keycloakAdminPassword: ""
   keycloakSecret: ""
   privateKey: ""
@@ -72,5 +74,3 @@ worker:
         cpu: 200m
         memory: 1024M
   replicas: 1
-lb:
-  host: "on-premise.secoda.co"
