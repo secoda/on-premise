@@ -1,0 +1,76 @@
+api:
+  api:
+    image:
+      repository: secoda/on-premise-api
+      tag: "3"
+    resources:
+      limits:
+        memory: 2048M
+      requests:
+        cpu: 200m
+        memory: 1024M
+  replicas: 1
+auth:
+  api:
+    image:
+      repository: secoda/on-premise-auth
+      tag: "4"
+    resources:
+      limits:
+        memory: 2048M
+      requests:
+        cpu: 200m
+        memory: 1024M
+frontend:
+  frontend:
+    image:
+      repository: secoda/on-premise-frontend
+      tag: "4"
+    resources:
+      limits:
+        memory: 2048M
+      requests:
+        cpu: 200m
+        memory: 1024M
+  replicas: 1
+kubernetesClusterDomain: cluster.local
+nginx:
+  nginx:
+    image:
+      repository: nginx
+      tag: latest
+redis:
+  redis:
+    image:
+      repository: redis
+      tag: latest
+    resources:
+      limits:
+        memory: 2048M
+      requests:
+        cpu: 200m
+        memory: 1024M
+  replicas: 1
+secodasecrets:
+  apiPostgresConnectionString: ""
+  apiSecret: ""
+  authDbPassword: ""
+  authDbUrl: ""
+  keycloakAdminPassword: ""
+  keycloakSecret: ""
+  privateKey: ""
+  publicKey: ""
+worker:
+  api:
+    image:
+      repository: secoda/on-premise-api
+      tag: "3"
+    resources:
+      limits:
+        memory: 2048M
+      requests:
+        cpu: 200m
+        memory: 1024M
+  replicas: 1
+lb:
+  host: "on-premise.secoda.co"
