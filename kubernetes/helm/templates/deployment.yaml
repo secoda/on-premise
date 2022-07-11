@@ -1,0 +1,304 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "secoda.fullname" . }}-api
+  labels:
+    io.kompose.service: api
+  {{- include "secoda.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.api.replicas }}
+  selector:
+    matchLabels:
+      io.kompose.service: api
+    {{- include "secoda.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        io.kompose.service: api
+      {{- include "secoda.selectorLabels" . | nindent 8 }}
+    spec:
+      containers:
+      - args:
+        - -c
+        - ./server.sh
+        command:
+        - /bin/sh
+        env:
+        - name: APISERVICE_SECRET
+          valueFrom:
+            secretKeyRef:
+              key: api_secret
+              name: {{ include "secoda.fullname" . }}-secodasecrets
+        - name: APISERVICE_DATABASE_CONNECTION
+          valueFrom:
+            secretKeyRef:
+              key: api_postgres_connection_string
+              name: {{ include "secoda.fullname" . }}-secodasecrets
+        - name: REDIS_URL
+          value: redis://redis:6379
+        - name: KUBERNETES_CLUSTER_DOMAIN
+          value: {{ .Values.kubernetesClusterDomain }}
+        image: {{ .Values.api.api.image.repository }}:{{ .Values.api.api.image.tag | default
+          .Chart.AppVersion }}
+        imagePullPolicy: Always
+        name: api
+        ports:
+        - containerPort: 5007
+        resources: {{- toYaml .Values.api.api.resources | nindent 10 }}
+      imagePullSecrets:
+      - name: secoda-dockerhub
+      restartPolicy: Always
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "secoda.fullname" . }}-auth
+  annotations:
+    timestamp: {{ now | quote }}
+  labels:
+    io.kompose.service: auth
+  {{- include "secoda.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: auth
+    {{- include "secoda.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        io.kompose.service: auth
+      {{- include "secoda.selectorLabels" . | nindent 8 }}
+    spec:
+      containers:
+      - args:
+        - start --auto-build --http-relative-path /auth --hostname-strict false --proxy
+          edge --spi-login-protocol-openid-connect-legacy-logout-redirect-uri=true --import-realm
+        env:
+        - name: KC_DB_USERNAME
+          value: postgres
+        - name: KC_DB
+          value: postgres
+        - name: KC_DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: auth_db_password
+              name: {{ include "secoda.fullname" . }}-secodasecrets
+        - name: KC_DB_URL
+          valueFrom:
+            secretKeyRef:
+              key: auth_db_url
+              name: {{ include "secoda.fullname" . }}-secodasecrets
+        - name: KEYCLOAK_SECRET
+          valueFrom:
+            secretKeyRef:
+              key: keycloak_secret
+              name: {{ include "secoda.fullname" . }}-secodasecrets
+        - name: KEYCLOAK_ADMIN
+          value: admin
+        - name: KEYCLOAK_ADMIN_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: keycloak_admin_password
+              name: {{ include "secoda.fullname" . }}-secodasecrets
+        - name: KUBERNETES_CLUSTER_DOMAIN
+          value: {{ .Values.kubernetesClusterDomain }}
+        image: {{ .Values.auth.api.image.repository }}:{{ .Values.auth.api.image.tag |
+          default .Chart.AppVersion }}
+        name: api
+        ports:
+        - containerPort: 8080
+        resources: {{- toYaml .Values.auth.api.resources | nindent 10 }}
+      imagePullSecrets:
+      - name: secoda-dockerhub
+      restartPolicy: Always
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "secoda.fullname" . }}-frontend
+  labels:
+    io.kompose.service: frontend
+  {{- include "secoda.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.frontend.replicas }}
+  selector:
+    matchLabels:
+      io.kompose.service: frontend
+    {{- include "secoda.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        io.kompose.service: frontend
+      {{- include "secoda.selectorLabels" . | nindent 8 }}
+    spec:
+      containers:
+      - env:
+        - name: APISERVICE_INTERNAL_BASE
+          value: http://api:5007
+        - name: KEYCLOAK_SECRET
+          valueFrom:
+            secretKeyRef:
+              key: keycloak_secret
+              name: {{ include "secoda.fullname" . }}-secodasecrets
+        - name: APISERVICE_SECRET
+          valueFrom:
+            secretKeyRef:
+              key: api_secret
+              name: {{ include "secoda.fullname" . }}-secodasecrets
+        - name: KEYCLOAK_CONFIG_URL
+          value: http://auth:8080/auth/realms/secoda/.well-known/openid-configuration
+        - name: PUBLIC_KEY
+          valueFrom:
+            secretKeyRef:
+              key: public_key
+              name: {{ include "secoda.fullname" . }}-secodasecrets
+        - name: PRIVATE_KEY
+          valueFrom:
+            secretKeyRef:
+              key: private_key
+              name: {{ include "secoda.fullname" . }}-secodasecrets
+        - name: KUBERNETES_CLUSTER_DOMAIN
+          value: {{ .Values.kubernetesClusterDomain }}
+        image: {{ .Values.frontend.frontend.image.repository }}:{{ .Values.frontend.frontend.image.tag
+          | default .Chart.AppVersion }}
+        imagePullPolicy: Always
+        name: frontend
+        ports:
+        - containerPort: 5006
+        resources: {{- toYaml .Values.frontend.frontend.resources | nindent 10 }}
+      imagePullSecrets:
+      - name: secoda-dockerhub
+      restartPolicy: Always
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "secoda.fullname" . }}-nginx
+  labels:
+    io.kompose.service: nginx
+  {{- include "secoda.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: nginx
+    {{- include "secoda.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        app: nginx
+        io.kompose.service: nginx
+      {{- include "secoda.selectorLabels" . | nindent 8 }}
+    spec:
+      containers:
+      - env:
+        - name: KUBERNETES_CLUSTER_DOMAIN
+          value: {{ .Values.kubernetesClusterDomain }}
+        image: {{ .Values.nginx.nginx.image.repository }}:{{ .Values.nginx.nginx.image.tag
+          | default .Chart.AppVersion }}
+        name: nginx
+        ports:
+        - containerPort: 80
+        resources: {}
+        volumeMounts:
+        - mountPath: /etc/nginx
+          name: nginx-conf
+          readOnly: true
+        - mountPath: /var/log/nginx
+          name: log
+      volumes:
+      - configMap:
+          items:
+          - key: nginx.conf
+            path: nginx.conf
+          name: {{ include "secoda.fullname" . }}-nginx-conf
+        name: nginx-conf
+      - emptyDir: {}
+        name: log
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "secoda.fullname" . }}-redis
+  labels:
+    io.kompose.service: redis
+  {{- include "secoda.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.redis.replicas }}
+  selector:
+    matchLabels:
+      io.kompose.service: redis
+    {{- include "secoda.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        io.kompose.service: redis
+      {{- include "secoda.selectorLabels" . | nindent 8 }}
+    spec:
+      containers:
+      - command:
+        - redis-server
+        env:
+        - name: REDIS
+          value: REDIS
+        - name: KUBERNETES_CLUSTER_DOMAIN
+          value: {{ .Values.kubernetesClusterDomain }}
+        image: {{ .Values.redis.redis.image.repository }}:{{ .Values.redis.redis.image.tag
+          | default .Chart.AppVersion }}
+        name: redis
+        ports:
+        - containerPort: 6379
+        resources: {{- toYaml .Values.redis.redis.resources | nindent 10 }}
+      restartPolicy: Always
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "secoda.fullname" . }}-worker
+  labels:
+    io.kompose.service: worker
+  {{- include "secoda.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.worker.replicas }}
+  selector:
+    matchLabels:
+      io.kompose.service: worker
+    {{- include "secoda.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        io.kompose.service: worker
+      {{- include "secoda.selectorLabels" . | nindent 8 }}
+    spec:
+      containers:
+      - args:
+        - -c
+        - ./worker.sh
+        command:
+        - /bin/sh
+        env:
+        - name: APISERVICE_SECRET
+          valueFrom:
+            secretKeyRef:
+              key: api_secret
+              name: {{ include "secoda.fullname" . }}-secodasecrets
+        - name: APISERVICE_DATABASE_CONNECTION
+          valueFrom:
+            secretKeyRef:
+              key: api_postgres_connection_string
+              name: {{ include "secoda.fullname" . }}-secodasecrets
+        - name: REDIS_URL
+          value: redis://redis:6379
+        - name: KUBERNETES_CLUSTER_DOMAIN
+          value: {{ .Values.kubernetesClusterDomain }}
+        image: {{ .Values.worker.api.image.repository }}:{{ .Values.worker.api.image.tag
+          | default .Chart.AppVersion }}
+        imagePullPolicy: Always
+        name: api
+        ports:
+        - containerPort: 5008
+        resources: {{- toYaml .Values.worker.api.resources | nindent 10 }}
+      imagePullSecrets:
+      - name: secoda-dockerhub
+      restartPolicy: Always

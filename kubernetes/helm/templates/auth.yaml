@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "secoda.fullname" . }}-auth
+  labels:
+    io.kompose.service: auth
+  {{- include "secoda.labels" . | nindent 4 }}
+spec:
+  type: ClusterIP
+  selector:
+    io.kompose.service: auth
+  {{- include "secoda.selectorLabels" . | nindent 4 }}
+  ports:
+  - name: "8080"
+    port: 8080
+    targetPort: 8080

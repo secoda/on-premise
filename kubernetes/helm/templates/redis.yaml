@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "secoda.fullname" . }}-redis
+  labels:
+    io.kompose.service: redis
+  {{- include "secoda.labels" . | nindent 4 }}
+spec:
+  type: ClusterIP
+  selector:
+    io.kompose.service: redis
+  {{- include "secoda.selectorLabels" . | nindent 4 }}
+  ports:
+  - name: "6379"
+    port: 6379
+    targetPort: 6379
