@@ -21,7 +21,7 @@ spec:
       - env:
         - name: REDIS
           value: REDIS
-        image: redis
+        image: redis:latest
         command: ["redis-server"]
         name: redis
         ports:
