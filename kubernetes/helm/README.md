@@ -62,7 +62,6 @@ You may need to run `brew upgrade openssl` to generate these.
 
 5. (Optional) in `values.yaml` modify the resources accessible by each pod to increase/decrease the amount of CPU and RAM they can utilize
 
-
 ## TLS/HTTPS Configuration (Required)
  
 Here, we use a self-signed certificate, but we suggest using a valid Google-managed certificate.
@@ -86,11 +85,7 @@ kubectl create secret tls lb \
     --cert ingress.crt --key ingress.key
 ```
 
-Replace the lb.host in `values.yaml` with `secoda.<COMPANY>.com`.
-
-Create the load balancer.
-
-Point an A record at the IP from the above describe command.
+Replace the host in `lb.yaml` with `secoda.<COMPANY>.com`.
 
 ## Deploy
 
