@@ -46,7 +46,7 @@ You will have to authorize inbound traffic to the database from your GKE cluster
 
 **apiPostgresConnectionString** - it has to be in the format of `postgresql://<USERNAME>:<PASSWORD>@<HOST>:5432/secoda`
 
-**authDbUrl** - in this format `jdbc:postgresql://<HOST>/keycloak`
+**authDbUrl** - the db host, this should be the same as the host in `apiPostgresConnectionString`
 
 **authDbPassword** - your database password, this should be the same as the password in the `apiPostgresConnectionString`
 
@@ -58,9 +58,9 @@ You will have to authorize inbound traffic to the database from your GKE cluster
 
 You may need to run `brew upgrade openssl` to generate these.
 
-**privateKey** - `openssl genrsa -out secoda.private.pem 2048 && echo "Copy the following:" && cat secoda.private.pem | base64 | tr -d \\n`
+**privateKey** - `openssl genrsa -out secoda.private.pem 2048 && echo "Copy the following:" && cat secoda.private.pem | tr -d \\n`
 
-**publicKey** - `openssl rsa -in secoda.private.pem -pubout > secoda.public.pem && echo "Copy the following:" && cat secoda.public.pem | base64 | tr -d \\n`
+**publicKey** - `openssl rsa -in secoda.private.pem -pubout > secoda.public.pem && echo "Copy the following:" && cat secoda.public.pem | tr -d \\n`
 
 5. (Optional) in `values.yaml` modify the resources accessible by each pod to increase/decrease the amount of CPU and RAM they can utilize
 
