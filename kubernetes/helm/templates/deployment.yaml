@@ -117,6 +117,8 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ include "secoda.fullname" . }}-frontend
+  annotations:
+    timestamp: {{ now | quote }}
   labels:
     io.kompose.service: frontend
   {{- include "secoda.labels" . | nindent 4 }}
@@ -175,6 +177,8 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ include "secoda.fullname" . }}-nginx
+  annotations:
+    timestamp: {{ now | quote }}
   labels:
     io.kompose.service: nginx
   {{- include "secoda.labels" . | nindent 4 }}
@@ -259,6 +263,8 @@ metadata:
   labels:
     io.kompose.service: worker
   {{- include "secoda.labels" . | nindent 4 }}
+  annotations:
+    timestamp: {{ now | quote }}
 spec:
   replicas: {{ .Values.worker.replicas }}
   selector:
