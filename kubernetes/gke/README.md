@@ -19,7 +19,8 @@ gcloud compute zones list --filter=region:$REGION
 gcloud container clusters create secoda \
     --release-channel regular \
     --zone $REGION \
-    --node-locations $REGION-b,$REGION-c
+    --node-locations $REGION-b,$REGION-c \
+    --machine-type=c2d-standard-2
 ```
 
 Customer support will provide you with an organization-specific `--docker-password`.
