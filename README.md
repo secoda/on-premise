@@ -3,7 +3,11 @@
     <b>A single space for all your data knowledge.</b>
 </p> <br>
 
-Deploying Secoda on-premise is offered to our Enterprise customers.
+# Disclaimer
+
+### New customers
+
+Please contact us for your company-specific Docker token. Secoda on-premise is an enterprise product, and we are happy to provide you with a token if you contact us through Intercom or Slack.
 
 ## Table of contents
 
