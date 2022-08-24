@@ -3,7 +3,7 @@
     <b>A single space for all your data knowledge.</b>
 </p> <br>
 
-# Disclaimer
+## Disclaimer
 
 ### New customers
 
