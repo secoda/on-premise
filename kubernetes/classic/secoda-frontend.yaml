@@ -1,0 +1,75 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  name: frontend
+  labels:
+    io.kompose.service: frontend
+spec:
+  replicas: 1
+  strategy: {}
+  selector:
+    matchLabels:
+      io.kompose.service: frontend
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        io.kompose.service: frontend
+    spec:
+      containers:
+        - env:
+            - name: APISERVICE_INTERNAL_BASE
+              value: http://api:5007
+            - name: KEYCLOAK_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: secodasecrets
+                  key: keycloak_secret
+            - name: APISERVICE_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: secodasecrets
+                  key: api_secret
+            - name: KEYCLOAK_CONFIG_URL
+              value: http://auth:8080/auth/realms/secoda/.well-known/openid-configuration
+            - name: PUBLIC_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: secodasecrets
+                  key: public_key
+            - name: PRIVATE_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: secodasecrets
+                  key: private_key
+          image: secoda/on-premise-frontend:5
+          name: frontend
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 5006
+          resources:
+            limits:
+              memory: 2048M
+            requests:
+              cpu: 200m
+              memory: 1024M
+      restartPolicy: Always
+      imagePullSecrets:
+        - name: secoda-dockerhub
+status: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: null
+  name: frontend
+  labels:
+    io.kompose.service: frontend
+spec:
+  ports:
+    - name: "5006"
+      port: 5006
+      targetPort: 5006
+  selector:
+    io.kompose.service: frontend

@@ -32,7 +32,7 @@ spec:
             - name: REDIS_URL
               value: redis://redis:6379
           name: api
-          image: secoda/on-premise-api:3
+          image: secoda/on-premise-api:5
           command: ["/bin/sh"]
           args:
             - -c

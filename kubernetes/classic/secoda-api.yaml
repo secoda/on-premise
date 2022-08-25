@@ -2,23 +2,34 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   creationTimestamp: null
-  name: frontend
+  name: api
   labels:
-    io.kompose.service: frontend
+    io.kompose.service: api
 spec:
   replicas: 1
   strategy: {}
   selector:
     matchLabels:
-      io.kompose.service: frontend
+      io.kompose.service: api
   template:
     metadata:
       creationTimestamp: null
       labels:
-        io.kompose.service: frontend
+        io.kompose.service: api
     spec:
       containers:
-        - env:
+        - command: ["/bin/sh"]
+          args:
+            - -c
+            - ./server.sh
+          env:
+            - name: APISERVICE_DATABASE_CONNECTION
+              valueFrom:
+                secretKeyRef:
+                  name: secodasecrets
+                  key: api_postgres_connection_string
+            - name: REDIS_URL
+              value: redis://redis:6379
             - name: APISERVICE_INTERNAL_BASE
               value: http://api:5007
             - name: KEYCLOAK_SECRET
@@ -43,11 +54,16 @@ spec:
                 secretKeyRef:
                   name: secodasecrets
                   key: private_key
-          image: secoda/on-premise-frontend:4
-          name: frontend
+            - name: KEYCLOAK_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: secodasecrets
+                  key: keycloak_admin_password
+          image: secoda/on-premise-api:5
           imagePullPolicy: Always
+          name: api
           ports:
-            - containerPort: 5006
+            - containerPort: 5007
           resources:
             limits:
               memory: 2048M
@@ -63,13 +79,13 @@ apiVersion: v1
 kind: Service
 metadata:
   creationTimestamp: null
-  name: frontend
+  name: api
   labels:
-    io.kompose.service: frontend
+    io.kompose.service: api
 spec:
   ports:
-    - name: "5006"
-      port: 5006
-      targetPort: 5006
+    - name: "5007"
+      port: 5007
+      targetPort: 5007
   selector:
-    io.kompose.service: frontend
+    io.kompose.service: api

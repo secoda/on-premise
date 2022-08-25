@@ -23,7 +23,7 @@ Please contact us for your company-specific Docker token. Secoda on-premise is a
     - [ECS + Fargate](https://github.com/secoda/onpremise/tree/main/terraform/aws)
 - [Kubernetes]
   - [Helm](https://github.com/secoda/secoda-helm)
-  - [Classic](https://github.com/secoda/onpremise/tree/main/kubernetes/gke)
+  - [Classic](https://github.com/secoda/onpremise/tree/main/kubernetes/classic)
 
 ## Contributing
 
