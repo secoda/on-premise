@@ -18,13 +18,15 @@ Please contact us for your company-specific Docker token. Secoda on-premise is a
   - [General](#general-managed-deployments)
     - [Kubernetes + Helm](#deploying-on-kubernetes-with-helm) -->
 
-- [Terraform]
-  - [AWS]
+- Terraform
+  - AWS
     - [ECS + Fargate](https://github.com/secoda/onpremise/tree/main/terraform/aws)
-- [Kubernetes]
+      - Setup time: 30-45 minutes.
+- Kubernetes
   - [Helm](https://github.com/secoda/secoda-helm)
+    - Setup time: 1-3 hours.
   - [Classic](https://github.com/secoda/onpremise/tree/main/kubernetes/classic)
-
+    - Setup time: 2-4 hours.
 ## Contributing
 
 We recommend following this [guide](https://www.dataschool.io/how-to-contribute-on-github/) for contributing to the codebase.
