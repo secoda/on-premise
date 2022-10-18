@@ -9,7 +9,7 @@ This deployment option uses **Google Kubernetes Engine**.
 2. Authenticate to Secoda's image registry
 
 ```bash
-kubectl create secret docker-registry secoda-dockerhub --docker-server=https://index.docker.io/v1/ --docker-username=secodaonpremise --docker-password=<CUSTOMER_SPECIFIC_PASSWORD> --docker-email=carter@secoda.co
+kubectl create secret docker-registry secoda-dockerhub --docker-server=https://index.docker.io/v1/ --docker-username=secodaonprem --docker-password=<CUSTOMER_SPECIFIC_PASSWORD> --docker-email=andrew@secoda.co
 ```
 
 ```bash
